@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { useAutoRefresh } from '../../hooks/useAutoRefresh'
+import { useSource } from '../../contexts/SourceContext'
 
 const COLORS: Record<string, string> = {
   success: '#289c5e',
@@ -11,17 +12,18 @@ const COLORS: Record<string, string> = {
 }
 
 export default function StatusDonut() {
+  const { source } = useSource()
   const [data, setData] = useState<{ status: string; count: number }[]>([])
 
-  const fetch = async () => {
-    const { data: rows } = await supabase.rpc('run_outcomes', { p_source: 'dawn', p_hours: 24 })
+  const fetch = useCallback(async () => {
+    const { data: rows } = await supabase.rpc('run_outcomes', { p_source: source, p_hours: 24 })
     setData((rows ?? []).map((r: { status: string; count: number }) => ({
       status: r.status,
       count: Number(r.count),
     })))
-  }
+  }, [source])
 
-  useEffect(() => { fetch() }, [])
+  useEffect(() => { fetch() }, [fetch])
   useAutoRefresh(fetch)
 
   return (

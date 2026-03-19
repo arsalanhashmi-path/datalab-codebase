@@ -1,8 +1,12 @@
 import { useCheckpoints } from '../hooks/useCheckpoints'
 import { useRuns } from '../hooks/useRuns'
 import CoverageSparkline from '../components/charts/CoverageSparkline'
+import { useSource } from '../contexts/SourceContext'
+import { getSourceConfig } from '../config/sources'
 
 export default function Checkpoints() {
+  const { source } = useSource()
+  const cfg = getSourceConfig(source)
   const { checkpoint, maxLiveId, coverage, loading } = useCheckpoints()
   const { runs } = useRuns(50)
 
@@ -14,7 +18,7 @@ export default function Checkpoints() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-display font-bold text-gray-900">Checkpoints</h1>
-        <p className="text-gray-500 text-sm mt-1">Scraper state and ID coverage</p>
+        <p className="text-gray-500 text-sm mt-1">{cfg.label} scraper state and ID coverage</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

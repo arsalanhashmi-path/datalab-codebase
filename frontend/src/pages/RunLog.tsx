@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useRuns } from '../hooks/useRuns'
 import StatusBadge from '../components/ui/StatusBadge'
 import Pagination from '../components/ui/Pagination'
+import { useSource } from '../contexts/SourceContext'
+import { getSourceConfig } from '../config/sources'
 import type { ScrapeRun } from '../types'
 
 function duration(run: ScrapeRun): string {
@@ -13,6 +15,8 @@ function duration(run: ScrapeRun): string {
 }
 
 export default function RunLog() {
+  const { source } = useSource()
+  const cfg = getSourceConfig(source)
   const { runs, loading } = useRuns(200)
   const [statusFilter, setStatusFilter] = useState('')
   const [modeFilter, setModeFilter] = useState('')
@@ -29,7 +33,7 @@ export default function RunLog() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-display font-bold text-gray-900">Run Log</h1>
-        <p className="text-gray-500 text-sm mt-1">All scrape runs for Dawn</p>
+        <p className="text-gray-500 text-sm mt-1">All scrape runs for {cfg.label}</p>
       </div>
 
       {/* Filters */}

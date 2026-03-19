@@ -1,7 +1,11 @@
 import { useSections } from '../hooks/useSections'
 import SectionBarChart from '../components/charts/SectionBarChart'
+import { useSource } from '../contexts/SourceContext'
+import { getSourceConfig } from '../config/sources'
 
 export default function Sections() {
+  const { source } = useSource()
+  const cfg = getSourceConfig(source)
   const { sections, loading } = useSections()
   const total = sections.reduce((s, r) => s + r.count, 0)
 
@@ -9,7 +13,7 @@ export default function Sections() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-display font-bold text-gray-900">By Section</h1>
-        <p className="text-gray-500 text-sm mt-1">Article distribution across Dawn sections</p>
+        <p className="text-gray-500 text-sm mt-1">Article distribution across {cfg.label} sections</p>
       </div>
 
       <SectionBarChart sections={sections} />

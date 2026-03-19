@@ -3,8 +3,12 @@ import { useArticles } from '../hooks/useArticles'
 import { useSections } from '../hooks/useSections'
 import SectionPill from '../components/ui/SectionPill'
 import Pagination from '../components/ui/Pagination'
+import { useSource } from '../contexts/SourceContext'
+import { getSourceConfig } from '../config/sources'
 
 export default function Articles() {
+  const { source } = useSource()
+  const cfg = getSourceConfig(source)
   const [query, setQuery] = useState('')
   const [section, setSection] = useState('')
   const [page, setPage] = useState(1)
@@ -22,7 +26,7 @@ export default function Articles() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-display font-bold text-gray-900">Articles</h1>
-        <p className="text-gray-500 text-sm mt-1">{total.toLocaleString()} total</p>
+        <p className="text-gray-500 text-sm mt-1">{total.toLocaleString()} articles from {cfg.label}</p>
       </div>
 
       {/* Filters */}

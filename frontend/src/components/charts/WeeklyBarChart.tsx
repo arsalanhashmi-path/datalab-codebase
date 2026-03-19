@@ -1,22 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { useAutoRefresh } from '../../hooks/useAutoRefresh'
+import { useSource } from '../../contexts/SourceContext'
 
 interface DayCount { day: string; count: number }
 
 export default function WeeklyBarChart() {
+  const { source } = useSource()
   const [data, setData] = useState<DayCount[]>([])
 
-  const fetch = async () => {
-    const { data: rows } = await supabase.rpc('articles_per_day', { p_source: 'dawn', p_days: 7 })
+  const fetch = useCallback(async () => {
+    const { data: rows } = await supabase.rpc('articles_per_day', { p_source: source, p_days: 7 })
     setData((rows ?? []).map((r: { day: string; count: number }) => ({
       day: new Date(r.day).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
       count: Number(r.count),
     })))
-  }
+  }, [source])
 
-  useEffect(() => { fetch() }, [])
+  useEffect(() => { fetch() }, [fetch])
   useAutoRefresh(fetch)
 
   return (

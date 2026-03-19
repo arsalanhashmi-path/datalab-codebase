@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAutoRefresh } from './useAutoRefresh'
+import { useSource } from '../contexts/SourceContext'
 import type { Article } from '../types'
 
 interface Filters {
@@ -11,6 +12,7 @@ interface Filters {
 }
 
 export function useArticles(filters: Filters) {
+  const { source } = useSource()
   const [articles, setArticles] = useState<Article[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -21,7 +23,7 @@ export function useArticles(filters: Filters) {
 
     let q = supabase.from('articles')
       .select('id, article_id, url, headline, description, author, section, published_at', { count: 'exact' })
-      .eq('source', 'dawn')
+      .eq('source', source)
       .order('published_at', { ascending: false })
       .range(start, start + pageSize - 1)
 
@@ -32,7 +34,7 @@ export function useArticles(filters: Filters) {
     setArticles((data as Article[]) ?? [])
     setTotal(count ?? 0)
     setLoading(false)
-  }, [filters])
+  }, [filters, source])
 
   useEffect(() => { fetch() }, [fetch])
   useAutoRefresh(fetch)

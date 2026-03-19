@@ -1,21 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { useAutoRefresh } from '../../hooks/useAutoRefresh'
+import { useSource } from '../../contexts/SourceContext'
 
 interface HourCount { hour: number; count: number }
 
 export default function HourlyLineChart() {
+  const { source } = useSource()
   const [data, setData] = useState<HourCount[]>([])
 
-  const fetch = async () => {
-    const { data: rows } = await supabase.rpc('articles_per_hour', { p_source: 'dawn' })
-    // Fill all 24 hours
+  const fetch = useCallback(async () => {
+    const { data: rows } = await supabase.rpc('articles_per_hour', { p_source: source })
     const map = new Map((rows ?? []).map((r: HourCount) => [r.hour, Number(r.count)]))
-    setData(Array.from({ length: 24 }, (_, h) => ({ hour: h, count: map.get(h) ?? 0 })))
-  }
+    setData(Array.from({ length: 24 }, (_, h): HourCount => ({ hour: h, count: map.get(h) ?? 0 })))
+  }, [source])
 
-  useEffect(() => { fetch() }, [])
+  useEffect(() => { fetch() }, [fetch])
   useAutoRefresh(fetch)
 
   return (
