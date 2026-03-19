@@ -1,6 +1,7 @@
 import MetricCard from '../components/ui/MetricCard'
 import StatusBadge from '../components/ui/StatusBadge'
 import LiveLog from '../components/ui/LiveLog'
+import RecentArticlesLog from '../components/ui/RecentArticlesLog'
 import WeeklyBarChart from '../components/charts/WeeklyBarChart'
 import HourlyLineChart from '../components/charts/HourlyLineChart'
 import StatusDonut from '../components/charts/StatusDonut'
@@ -10,6 +11,10 @@ import { useRuns } from '../hooks/useRuns'
 import { useSections } from '../hooks/useSections'
 import { useSource } from '../contexts/SourceContext'
 import { getSourceConfig } from '../config/sources'
+
+function fmtDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+}
 
 function timeSince(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -68,6 +73,19 @@ export default function Overview() {
         <MetricCard label="Success Rate" value={loading ? '…' : `${data.successRate}%`} sub="runs today" />
         <MetricCard label="Gaps Filled" value={loading ? '…' : data.gapsFilled} sub="sequential today" />
       </div>
+
+      {/* Date range */}
+      {!loading && data.earliestScraped && data.latestScraped && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-3 flex items-center gap-3 text-sm">
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider shrink-0">Scraped range</span>
+          <span className="font-mono font-medium text-gray-800">{fmtDate(data.earliestScraped)}</span>
+          <span className="text-gray-300">→</span>
+          <span className="font-mono font-medium text-gray-800">{fmtDate(data.latestScraped)}</span>
+          <span className="ml-auto text-xs text-gray-400 font-mono">
+            {Math.round((new Date(data.latestScraped).getTime() - new Date(data.earliestScraped).getTime()) / 86_400_000)} days
+          </span>
+        </div>
+      )}
 
       {/* Scraper health */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -140,8 +158,11 @@ export default function Overview() {
         <SectionBarChart sections={sections} />
       </div>
 
-      {/* Live activity log */}
-      <LiveLog limit={25} />
+      {/* Recent articles + live activity log */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <RecentArticlesLog limit={10} />
+        <LiveLog limit={25} />
+      </div>
     </div>
   )
 }
