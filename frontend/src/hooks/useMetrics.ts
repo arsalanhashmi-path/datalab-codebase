@@ -7,8 +7,8 @@ export function useMetrics() {
   const { source } = useSource()
   const [data, setData] = useState({
     total: 0, today: 0, lastHour: 0, runsToday: 0, successRate: 0, gapsFilled: 0,
-    earliestScraped: null as string | null,
-    latestScraped: null as string | null,
+    earliestPublished: null as string | null,
+    latestPublished: null as string | null,
   })
   const [loading, setLoading] = useState(true)
 
@@ -25,10 +25,10 @@ export function useMetrics() {
         .eq('source', source).gte('scraped_at', oneHourAgo.toISOString()),
       supabase.from('scrape_runs').select('status, articles_new, mode')
         .eq('source', source).gte('started_at', today.toISOString()),
-      supabase.from('articles').select('scraped_at').eq('source', source)
-        .order('scraped_at', { ascending: true }).limit(1),
-      supabase.from('articles').select('scraped_at').eq('source', source)
-        .order('scraped_at', { ascending: false }).limit(1),
+      supabase.from('articles').select('published_at').eq('source', source)
+        .not('published_at', 'is', null).order('published_at', { ascending: true }).limit(1),
+      supabase.from('articles').select('published_at').eq('source', source)
+        .not('published_at', 'is', null).order('published_at', { ascending: false }).limit(1),
     ])
 
     const runs = runsRes.data ?? []
@@ -44,8 +44,8 @@ export function useMetrics() {
       runsToday:       runs.length,
       successRate:     runs.length > 0 ? Math.round((successes / runs.length) * 100) : 0,
       gapsFilled,
-      earliestScraped: (earliestRes.data?.[0]?.scraped_at as string | undefined) ?? null,
-      latestScraped:   (latestRes.data?.[0]?.scraped_at as string | undefined) ?? null,
+      earliestPublished: (earliestRes.data?.[0]?.published_at as string | undefined) ?? null,
+      latestPublished:   (latestRes.data?.[0]?.published_at as string | undefined) ?? null,
     })
     setLoading(false)
   }, [source])

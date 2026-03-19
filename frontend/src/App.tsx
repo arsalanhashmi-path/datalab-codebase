@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { SourceProvider } from './contexts/SourceContext'
+import { RefreshProvider } from './contexts/RefreshContext'
 import Sidebar from './components/layout/Sidebar'
 import Topbar from './components/layout/Topbar'
 import Overview from './pages/Overview'
@@ -10,6 +11,7 @@ import Checkpoints from './pages/Checkpoints'
 
 export default function App() {
   return (
+    <RefreshProvider>
     <SourceProvider>
       <BrowserRouter>
         <div className="flex h-screen bg-gray-50 font-sans">
@@ -29,5 +31,6 @@ export default function App() {
         </div>
       </BrowserRouter>
     </SourceProvider>
+    </RefreshProvider>
   )
 }

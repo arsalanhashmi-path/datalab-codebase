@@ -1,13 +1,17 @@
 import { useEffect, useRef } from 'react'
-
-const INTERVAL_MS = 30_000
+import { useRefresh } from '../contexts/RefreshContext'
 
 export function useAutoRefresh(refetch: () => void) {
+  const { tick } = useRefresh()
   const fn = useRef(refetch)
   fn.current = refetch
 
+  const mounted = useRef(false)
   useEffect(() => {
-    const id = setInterval(() => fn.current(), INTERVAL_MS)
-    return () => clearInterval(id)
-  }, [])
+    if (!mounted.current) {
+      mounted.current = true
+      return
+    }
+    fn.current()
+  }, [tick])
 }

@@ -75,14 +75,14 @@ export default function Overview() {
       </div>
 
       {/* Date range */}
-      {!loading && data.earliestScraped && data.latestScraped && (
+      {!loading && data.earliestPublished && data.latestPublished && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm px-5 py-3 flex items-center gap-3 text-sm">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider shrink-0">Scraped range</span>
-          <span className="font-mono font-medium text-gray-800">{fmtDate(data.earliestScraped)}</span>
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider shrink-0">Published range</span>
+          <span className="font-mono font-medium text-gray-800">{fmtDate(data.earliestPublished)}</span>
           <span className="text-gray-300">→</span>
-          <span className="font-mono font-medium text-gray-800">{fmtDate(data.latestScraped)}</span>
+          <span className="font-mono font-medium text-gray-800">{fmtDate(data.latestPublished)}</span>
           <span className="ml-auto text-xs text-gray-400 font-mono">
-            {Math.round((new Date(data.latestScraped).getTime() - new Date(data.earliestScraped).getTime()) / 86_400_000)} days
+            {Math.round((new Date(data.latestPublished).getTime() - new Date(data.earliestPublished).getTime()) / 86_400_000)} days
           </span>
         </div>
       )}
