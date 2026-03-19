@@ -1,0 +1,78 @@
+import logging
+import os
+from bs4 import BeautifulSoup
+from shared.session import make_session
+from shared.throttle import Throttle
+from shared.retry import fetch_with_retry
+from shared.db import get_client, upsert_article, start_run, finish_run
+from shared.checkpoint import get_checkpoint, save_checkpoint
+from dawn.parser import parse_article
+
+logger = logging.getLogger(__name__)
+
+def get_max_live_id() -> int | None:
+    session = make_session()
+    try:
+        r = session.get("https://www.dawn.com", timeout=15)
+        soup = BeautifulSoup(r.text, "html.parser")
+        ids = [
+            int(tag["data-id"])
+            for tag in soup.find_all(attrs={"data-id": True})
+            if str(tag.get("data-id", "")).isdigit()
+        ]
+        return max(ids) if ids else None
+    except Exception as e:
+        logger.error(f"Could not fetch max live ID: {e}")
+        return None
+
+def run():
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(levelname)s %(message)s")
+    session = make_session()
+    throttle = Throttle(min_delay=2.0, max_delay=6.0, burst_every=10, burst_delay=15.0)
+
+    override = os.environ.get("OVERRIDE_START_ID", "").strip()
+    start_id = int(override) if override.isdigit() else get_checkpoint("dawn")
+    max_id   = get_max_live_id()
+
+    if not start_id or not max_id:
+        logger.error("Cannot determine ID range — aborting")
+        return
+
+    if start_id >= max_id:
+        logger.info("Already up to date")
+        return
+
+    logger.info(f"Sequential scrape: {start_id + 1} → {max_id}")
+    run_id = start_run("dawn", "sequential")
+    found = new = failed = 0
+    last_id = str(start_id)
+
+    for article_id in range(start_id + 1, max_id + 1):
+        url = f"https://www.dawn.com/news/{article_id}"
+        found += 1
+
+        response = fetch_with_retry(session, url, throttle)
+        if response is None:
+            # 404 gap — expected, do not count as failure
+            continue
+
+        article = parse_article(url, response.text)
+        if not article:
+            failed += 1
+            continue
+
+        if upsert_article(article):
+            new += 1
+            last_id = str(article_id)
+            save_checkpoint("dawn", article_id)
+            logger.info(f"Saved [{article_id}] {article['headline']}")
+        else:
+            failed += 1
+
+    status = "success" if failed == 0 else "partial" if new > 0 else "failed"
+    finish_run(run_id, found, new, failed, last_id, status)
+    logger.info(f"Done — found={found} new={new} failed={failed}")
+
+if __name__ == "__main__":
+    run()
