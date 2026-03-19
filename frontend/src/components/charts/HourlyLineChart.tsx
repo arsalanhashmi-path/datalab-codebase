@@ -12,7 +12,7 @@ export default function HourlyLineChart() {
 
   const fetch = useCallback(async () => {
     const { data: rows } = await supabase.rpc('articles_per_hour', { p_source: source })
-    const map = new Map((rows ?? []).map((r: HourCount) => [r.hour, Number(r.count)]))
+    const map = new Map<number, number>((rows ?? []).map((r: HourCount) => [r.hour, Number(r.count)]))
     setData(Array.from({ length: 24 }, (_, h): HourCount => ({ hour: h, count: map.get(h) ?? 0 })))
   }, [source])
 
