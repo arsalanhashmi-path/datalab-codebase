@@ -29,6 +29,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r scraper/requirements.txt
 
+      - name: Debug secrets
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          echo "URL length: ${#SUPABASE_URL}"
+          echo "KEY length: ${#SUPABASE_SERVICE_KEY}"
+          echo "URL prefix: ${SUPABASE_URL:0:15}"
+          echo "KEY prefix: ${SUPABASE_SERVICE_KEY:0:10}"
+
       - name: Run sequential scraper
         working-directory: scraper
         env:
