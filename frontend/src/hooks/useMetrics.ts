@@ -18,16 +18,16 @@ export function useMetrics() {
     const oneHourAgo = new Date(Date.now() - 3_600_000)
 
     const [totalRes, todayRes, lastHourRes, runsRes, earliestRes, latestRes] = await Promise.all([
-      supabase.from('articles').select('*', { count: 'exact', head: true }).eq('source', source),
-      supabase.from('articles').select('*', { count: 'exact', head: true })
+      supabase.from('all_articles').select('*', { count: 'exact', head: true }).eq('source', source),
+      supabase.from('all_articles').select('*', { count: 'exact', head: true })
         .eq('source', source).gte('scraped_at', today.toISOString()),
-      supabase.from('articles').select('*', { count: 'exact', head: true })
+      supabase.from('all_articles').select('*', { count: 'exact', head: true })
         .eq('source', source).gte('scraped_at', oneHourAgo.toISOString()),
       supabase.from('scrape_runs').select('status, articles_new, mode')
         .eq('source', source).gte('started_at', today.toISOString()),
-      supabase.from('articles').select('published_at').eq('source', source)
+      supabase.from('all_articles').select('published_at').eq('source', source)
         .not('published_at', 'is', null).order('published_at', { ascending: true }).limit(1),
-      supabase.from('articles').select('published_at').eq('source', source)
+      supabase.from('all_articles').select('published_at').eq('source', source)
         .not('published_at', 'is', null).order('published_at', { ascending: false }).limit(1),
     ])
 

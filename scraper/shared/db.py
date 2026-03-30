@@ -12,9 +12,9 @@ def get_client() -> Client:
         )
     return _client
 
-def upsert_article(article: dict) -> bool:
+def upsert_article(article: dict, table: str = "articles") -> bool:
     try:
-        get_client().table("articles").upsert(
+        get_client().table(table).upsert(
             article, on_conflict="url"
         ).execute()
         return True

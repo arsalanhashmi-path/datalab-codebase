@@ -10,7 +10,7 @@ export function useRecentArticles(limit = 10) {
   const [loading, setLoading] = useState(true)
 
   const fetch = useCallback(async () => {
-    const { data } = await supabase.from('articles')
+    const { data } = await supabase.from('all_articles')
       .select('id, url, headline, section, scraped_at, article_id')
       .eq('source', source)
       .order('scraped_at', { ascending: false })

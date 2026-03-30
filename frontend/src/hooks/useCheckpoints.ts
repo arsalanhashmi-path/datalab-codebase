@@ -15,7 +15,7 @@ export function useCheckpoints() {
     const [cpRes, coverageRes, maxRes] = await Promise.all([
       supabase.from('scrape_checkpoints').select('*').eq('source', source).single(),
       supabase.rpc('id_coverage', { p_source: source, p_limit: 500 }),
-      supabase.from('articles').select('article_id').eq('source', source)
+      supabase.from('all_articles').select('article_id').eq('source', source)
         .order('article_id', { ascending: false }).limit(1),
     ])
 

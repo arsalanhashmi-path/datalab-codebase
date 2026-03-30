@@ -14,8 +14,13 @@ export const SOURCES: SourceConfig[] = [
     description: "Pakistan's largest English-language newspaper",
     flag: '🇵🇰',
   },
-  // Add new sources here — the rest of the app picks them up automatically:
-  // { id: 'tribune', label: 'Express Tribune', domain: 'tribune.com.pk', description: '...', flag: '🇵🇰' },
+  {
+    id: 'tribune',
+    label: 'Express Tribune',
+    domain: 'tribune.com.pk',
+    description: "Pakistan's leading English-language newspaper",
+    flag: '🇵🇰',
+  },
   // { id: 'geo',     label: 'Geo News',        domain: 'geo.tv',         description: '...', flag: '🇵🇰' },
   // { id: 'guardian',label: 'The Guardian',    domain: 'theguardian.com',description: '...', flag: '🇬🇧' },
 ]

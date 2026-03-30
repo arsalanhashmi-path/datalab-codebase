@@ -21,7 +21,7 @@ export function useArticles(filters: Filters) {
     const { query, section, page, pageSize } = filters
     const start = (page - 1) * pageSize
 
-    let q = supabase.from('articles')
+    let q = supabase.from('all_articles')
       .select('id, article_id, url, headline, description, author, section, published_at', { count: 'exact' })
       .eq('source', source)
       .order('published_at', { ascending: false })
