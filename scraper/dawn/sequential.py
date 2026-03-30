@@ -47,23 +47,30 @@ def run():
         logger.info("Already up to date")
         return
 
-    logger.info(f"Sequential scrape: {start_id + 1} → {max_id}")
+    total = max_id - start_id
+    logger.info(f"Sequential scrape: {start_id + 1} → {max_id} ({total} IDs to check)")
     run_id = start_run("dawn", "sequential")
-    found = new = failed = 0
+    found = new = failed = skipped = 0
     last_id = str(start_id)
 
     for article_id in range(start_id + 1, max_id + 1):
         url = f"https://www.dawn.com/news/{article_id}"
         found += 1
 
+        if found % 100 == 0:
+            pct = found / total * 100
+            logger.info(f"Progress: {found}/{total} ({pct:.1f}%) — new={new} skipped={skipped} failed={failed} | current ID={article_id}")
+
         response = fetch_with_retry(session, url, throttle)
         if response is None:
-            # 404 gap — expected, do not count as failure
+            skipped += 1
+            logger.debug(f"Skipped [{article_id}] — no content (404/403)")
             continue
 
         article = parse_article(url, response.text)
         if not article:
             failed += 1
+            logger.warning(f"Parse failed [{article_id}]")
             continue
 
         if upsert_article(article):
@@ -73,10 +80,11 @@ def run():
             logger.info(f"Saved [{article_id}] {article['headline']}")
         else:
             failed += 1
+            logger.warning(f"Upsert failed [{article_id}]")
 
     status = "success" if failed == 0 else "partial" if new > 0 else "failed"
     finish_run(run_id, found, new, failed, last_id, status)
-    logger.info(f"Done — found={found} new={new} failed={failed}")
+    logger.info(f"Done — found={found} new={new} skipped={skipped} failed={failed}")
 
 if __name__ == "__main__":
     run()
