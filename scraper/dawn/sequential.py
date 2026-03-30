@@ -1,5 +1,6 @@
 import logging
 import os
+import socket
 from bs4 import BeautifulSoup
 from shared.session import make_session
 from shared.throttle import Throttle
@@ -28,6 +29,7 @@ def get_max_live_id() -> int | None:
 def run():
     logging.basicConfig(level=logging.INFO,
                         format="%(asctime)s %(levelname)s %(message)s")
+    socket.setdefaulttimeout(30)  # covers DNS resolution, which requests timeout= does not
     session = make_session()
     throttle = Throttle(min_delay=2.0, max_delay=6.0, burst_every=10, burst_delay=15.0)
 
