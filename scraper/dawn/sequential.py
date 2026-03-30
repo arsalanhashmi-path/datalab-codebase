@@ -35,8 +35,11 @@ def run():
     start_id = int(override) if override.isdigit() else get_checkpoint("dawn")
     max_id   = get_max_live_id()
 
-    if not start_id or not max_id:
-        logger.error("Cannot determine ID range — aborting")
+    if not start_id:
+        logger.error("Cannot determine start_id — no checkpoint for 'dawn' and no OVERRIDE_START_ID set")
+        return
+    if not max_id:
+        logger.error("Cannot determine max_id — failed to fetch live ID from dawn.com homepage")
         return
 
     if start_id >= max_id:
