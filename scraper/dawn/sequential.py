@@ -33,7 +33,8 @@ def run():
 
     override = os.environ.get("OVERRIDE_START_ID", "").strip()
     start_id = int(override) if override.isdigit() else get_checkpoint("dawn")
-    max_id   = get_max_live_id()
+    override_max = os.environ.get("OVERRIDE_MAX_ID", "").strip()
+    max_id = int(override_max) if override_max.isdigit() else get_max_live_id()
 
     if not start_id:
         logger.error("Cannot determine start_id — no checkpoint for 'dawn' and no OVERRIDE_START_ID set")

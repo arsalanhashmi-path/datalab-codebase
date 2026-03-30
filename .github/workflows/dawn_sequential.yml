@@ -9,6 +9,10 @@ on:
         description: 'Override start ID (leave blank to use checkpoint)'
         required: false
         type: string
+      max_id:
+        description: 'Override max ID (leave blank to fetch from dawn.com homepage)'
+        required: false
+        type: string
 
 jobs:
   scrape:
@@ -45,6 +49,7 @@ jobs:
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           OVERRIDE_START_ID:    ${{ inputs.start_id }}
+          OVERRIDE_MAX_ID:      ${{ inputs.max_id }}
         run: python -m dawn.sequential
 
       - name: Write run summary
