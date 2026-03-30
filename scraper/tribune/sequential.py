@@ -58,14 +58,17 @@ def run():
         url = f"https://tribune.com.pk/story/{article_id}"
         found += 1
 
-        if found % 100 == 0:
+        if found % 25 == 0:
             pct = found / total * 100
             logger.info(f"Progress: {found}/{total} ({pct:.1f}%) — new={new} skipped={skipped} failed={failed} | current ID={article_id}")
 
         response = fetch_with_retry(session, url, throttle)
         if response is None:
             skipped += 1
-            logger.debug(f"Skipped [{article_id}] — no content (404/403)")
+            if found <= 50:
+                logger.info(f"Skipped [{article_id}] — no content (404/403)")
+            else:
+                logger.debug(f"Skipped [{article_id}] — no content (404/403)")
             continue
 
         article = parse_article(url, response.text)
