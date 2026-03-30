@@ -11,7 +11,7 @@ def fetch_with_retry(session, url, throttle, max_retries=3):
             return throttle.get(session, url, timeout=15)
         except requests.HTTPError as e:
             code = e.response.status_code
-            if code == 404:
+            if code in (403, 404):
                 return None
             if code == 429:
                 wait = 60 * (attempt + 1)
